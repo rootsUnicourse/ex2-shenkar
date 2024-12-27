@@ -4,6 +4,7 @@ const Staff = require('../models/Staff');
 const Student = require('../models/Student');
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
 const TOKEN_EXPIRY = '10m';
 
 const generateToken = (user) => {
@@ -16,7 +17,7 @@ const generateToken = (user) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { userType, name, address, academicYear, password } = req.body;
+    const { userType, name, address, email, academicYear, password } = req.body;
 
     if (userType === 'staff') {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -24,6 +25,7 @@ exports.signup = async (req, res) => {
       const newStaff = new Staff({
         name,
         address,
+        email,
         role: 'staff',
         password: hashedPassword,
       });
@@ -36,6 +38,7 @@ exports.signup = async (req, res) => {
       const newStudent = new Student({
         name,
         address,
+        email,
         academicYear,
         password: hashedPassword,
       });
@@ -54,6 +57,10 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { userType, email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
 
     let user;
 
