@@ -5,16 +5,40 @@ const isStaff = (role) => role === 'staff';
 
 exports.addCourse = async (req, res) => {
   try {
+    // Ensure the user is staff
     if (!isStaff(req.user.role)) {
       return res.status(403).json({ message: 'Only staff can add courses' });
     }
 
+    // Extract and validate body fields
     const { name, lecturer, creditPoints, maxCapacity } = req.body;
 
+    if (!name) {
+      return res.status(400).json({ message: 'Course name is required' });
+    }
+    if (!lecturer) {
+      return res.status(400).json({ message: 'Lecturer is required' });
+    }
+    if (!creditPoints) {
+      return res.status(400).json({ message: 'Credit points are required' });
+    }
     if (creditPoints < 3 || creditPoints > 5) {
       return res.status(400).json({ message: 'Credit points must be between 3 and 5' });
     }
+    if (!maxCapacity) {
+      return res.status(400).json({ message: 'Maximum capacity is required' });
+    }
+    if (maxCapacity <= 0) {
+      return res.status(400).json({ message: 'Maximum capacity must be a positive number' });
+    }
 
+    // Check for existing course with the same name
+    const existingCourse = await Course.findOne({ name });
+    if (existingCourse) {
+      return res.status(400).json({ message: 'A course with the same name already exists' });
+    }
+
+    // Create and save the new course
     const newCourse = new Course({
       name,
       lecturer,
@@ -30,6 +54,7 @@ exports.addCourse = async (req, res) => {
     res.status(500).json({ message: 'Server error while adding course' });
   }
 };
+
 
 exports.getCourses = async (req, res) => {
   try {

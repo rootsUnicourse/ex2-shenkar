@@ -6,6 +6,7 @@ const studentSchema = new mongoose.Schema({
   password: { type: String, required: true },
   address: { type: String, required: true },
   academicYear: { type: Number, required: true },
+  role: { type: String, default: 'student' }, 
   registeredCourses: [
     {
       type: mongoose.Schema.Types.ObjectId, 
