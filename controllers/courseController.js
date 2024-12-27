@@ -1,8 +1,14 @@
 const Course = require('../models/Course');
 const Student = require('../models/Student');
 
+const isStaff = (role) => role === 'staff';
+
 exports.addCourse = async (req, res) => {
   try {
+    if (!isStaff(req.user.role)) {
+      return res.status(403).json({ message: 'Only staff can add courses' });
+    }
+
     const { name, lecturer, creditPoints, maxCapacity } = req.body;
 
     if (creditPoints < 3 || creditPoints > 5) {
@@ -27,6 +33,7 @@ exports.addCourse = async (req, res) => {
 
 exports.getCourses = async (req, res) => {
   try {
+
     const courses = await Course.find().populate('enrolledStudents', 'name email');
     res.status(200).json(courses);
   } catch (error) {
@@ -37,6 +44,11 @@ exports.getCourses = async (req, res) => {
 
 exports.updateCourse = async (req, res) => {
   try {
+
+    if (!isStaff(req.user.role)) {
+      return res.status(403).json({ message: 'Only staff can update courses' });
+    }
+
     const { courseId } = req.params;
     const updates = req.body;
 
@@ -55,6 +67,11 @@ exports.updateCourse = async (req, res) => {
 
 exports.deleteCourse = async (req, res) => {
   try {
+
+    if (!isStaff(req.user.role)) {
+      return res.status(403).json({ message: 'Only staff can delete courses' });
+    }
+
     const { courseId } = req.params;
 
     const deletedCourse = await Course.findByIdAndDelete(courseId);
