@@ -7,7 +7,7 @@ const {
   enrollStudent,
   dropStudent,
 } = require('../controllers/courseController');
-const verifyToken = require('../utils/verifyToken');
+const verifyToken = require('../utils/validateToken');
 
 const router = express.Router();
 
